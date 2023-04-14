@@ -108,7 +108,7 @@ SKATMC_Null_Model <- function(formula, data.type, ref = NULL, data = NULL){
 #' @export
 #'
 #' @examples
-SKATMC <- function(null.model, G, weights = NULL, weights.beta = c(1, 25)){
+SKATMC <- function(null.model, G, weights = NULL, weights.beta = c(1, 10)){
   # browser()
   ###
   # no weights, weights = F
@@ -128,7 +128,8 @@ SKATMC <- function(null.model, G, weights = NULL, weights.beta = c(1, 25)){
     if (any(maf > 1 | maf < 0)) stop('Minor allele frequency is greater than 1 or
                                      less than 0. Check the genotype matrix.')
     if (any(maf > 0.5)) {
-      warning('Some SNPs have minor allele frequency greater than 0.5, will be switched to less than 0.5.')
+      # warning('Some SNPs have minor allele frequency greater than 0.5, will be flipped to less than 0.5.')
+      G[, maf > 0.5] <- 2 - G[, maf > 0.5]
       maf[maf > 0.5] <- 1 - maf[maf > 0.5]
     }
     weights <- dbeta(maf, weights.beta[1], weights.beta[2])
@@ -136,7 +137,7 @@ SKATMC <- function(null.model, G, weights = NULL, weights.beta = c(1, 25)){
     stop('Check the length of weights.')
   }
 
-  if (nSNP > 1000) cat('Number of SNPs is greater 1000, algorithm might be slow.\n')
+  if (nSNP > 1000) cat('Number of SNPs is greater than 1000, algorithm might be slow.\n')
   G <- t(G) # by convension, G should be a n * p matrix, but the algorithm needs a p * n matrix
   X <- null.model$X
   y.star.list <- null.model$y.star.list
@@ -150,7 +151,7 @@ SKATMC <- function(null.model, G, weights = NULL, weights.beta = c(1, 25)){
   for (i in seq_len(all.ref.levels)){
     tXWX.I <- get_tXWXI(X = X, W = W.list[[i]], J = J)
     qua <- get_qua_linear(w = weights, G = G, W = W.list[[i]], X = X, c = tXWX.I, J = J)
-    lambda <- eigen(qua, symmetric = T, only.values = T) # eigenvalues for chi-square
+    # lambda <- eigen(qua, symmetric = T, only.values = T) # eigenvalues for chi-square
     score.stat <- get_score.stat(y.star = y.star.list[[i]], W = W.list[[i]], w = weights, G = G, J = J, nSam)
     p.davies <- Get_Davies_PVal(score.stat/2, qua)$p.value
     pv.list[i] <- p.davies
