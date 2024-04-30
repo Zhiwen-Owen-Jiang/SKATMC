@@ -27,3 +27,5 @@ SKATMC(test.null.model.glm, G = G, weights = T, weights.beta = c(1, 25)) # use s
 ## Getting help
 Please email Owen Jiang <owenjf@live.unc.edu>.
 
+## Citation
+Jiang, Zhiwen, et al. "The sequence kernel association test for multicategorical outcomes." Genetic epidemiology 47.6 (2023): 432-449.
